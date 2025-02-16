@@ -4,6 +4,7 @@ import Navbar from './components/Navbar/Navbar';
 import AboutUs from './components/AboutUs/AboutUs';
 import CryptoSection from './components/CryptoSection/CryptoSection';
 import CryptoDashboard from './components/CryptoDashboard/CryptoDashboard';
+import CryptoStash from './components/CryptoStash/CryptoStash';
 import './styles/variables.css';
 import './App.css';
 
@@ -37,9 +38,10 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/crypto" element={<CryptoSection />} />
           <Route path="/about" element={<AboutUs />} />
-        </Routes>
-      </div>
-    </Router>
+      </Routes>
+      <CryptoStash />
+    </div>
+  </Router>
   );
 }
 
