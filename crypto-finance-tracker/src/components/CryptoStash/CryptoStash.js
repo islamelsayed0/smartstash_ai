@@ -3,6 +3,7 @@ import OpenAI from 'openai';
 import './CryptoStash.css';
 
 const openai = new OpenAI({
+    apiKey: 'api goes here :)',
   dangerouslyAllowBrowser: true
 });
 

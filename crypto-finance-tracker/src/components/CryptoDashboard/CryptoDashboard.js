@@ -9,30 +9,48 @@ export default function CryptoDashboard() {
   const [crypto, setCrypto] = useState("bitcoin");
   const [price, setPrice] = useState(null);
   const [insight, setInsight] = useState("Fetching AI insights...");
-  const [history, setHistory] = useState([45000, 46000, 44000, 47000, 45500, 46500]); // Mock initial data
+  const [history, setHistory] = useState([]);
+  const [timestamps, setTimestamps] = useState([]);
 
   useEffect(() => {
     fetchCryptoData();
   }, [crypto]);
 
   const fetchCryptoData = async () => {
-    // Simulate data for demo purposes
-    const mockPrices = {
-      bitcoin: 45000,
-      ethereum: 3000,
-      dogecoin: 0.15
-    };
     try {
       setPrice("Loading...");
       setInsight("Fetching insights...");
       
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Fetch current price
+      const priceResponse = await fetch(`http://localhost:5000/crypto?crypto=${crypto}`);
+      const priceData = await priceResponse.json();
       
-      const mockPrice = mockPrices[crypto.toLowerCase()] || 1000;
-      setPrice(mockPrice);
-      setHistory(prev => [...prev.slice(-5), mockPrice + Math.random() * 1000 - 500]);
-      setInsight(`${crypto.toUpperCase()} is showing interesting price movements. Consider monitoring market trends.`);
+      if (priceData.error) {
+        throw new Error(priceData.error);
+      }
+      
+      setPrice(priceData.price);
+
+      // Fetch historical data
+      const historyResponse = await fetch(`http://localhost:5000/crypto-history?crypto=${crypto}&days=7`);
+      const historyData = await historyResponse.json();
+      
+      if (historyData.error) {
+        throw new Error(historyData.error);
+      }
+      
+      setHistory(historyData.prices);
+      setTimestamps(historyData.timestamps);
+
+      // Fetch AI insight
+      const insightResponse = await fetch(`http://localhost:5000/crypto-insight?crypto=${crypto}`);
+      const insightData = await insightResponse.json();
+      
+      if (insightData.error) {
+        setInsight("AI insights unavailable at the moment.");
+      } else {
+        setInsight(insightData.insight);
+      }
     } catch (error) {
       setPrice("Error fetching price");
       setInsight("Unable to fetch market insights at the moment.");
@@ -64,7 +82,7 @@ export default function CryptoDashboard() {
       <div className="chart-container">
         <Line
           data={{
-            labels: Array.from({ length: history.length }, (_, i) => `${2020 + i}`),
+            labels: timestamps.map(ts => new Date(ts).toLocaleDateString()),
             datasets: [
               {
                 label: "",
